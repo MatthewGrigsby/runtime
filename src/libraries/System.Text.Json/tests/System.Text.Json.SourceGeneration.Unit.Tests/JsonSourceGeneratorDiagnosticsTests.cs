@@ -901,16 +901,14 @@ namespace System.Text.Json.SourceGeneration.UnitTests
                     }
 
                     [JsonSerializable(typeof(MyPoco))]
-                    public partial class JsonContext : JsonSerializerContext
-                    {
-                    }
+                    public partial class JsonContext : JsonSerializerContext { }
                 }
                 """;
 
             Compilation compilation = CompilationHelper.CreateCompilation(source);
             JsonSourceGeneratorResult result = CompilationHelper.RunJsonSourceGenerator(compilation, disableDiagnosticValidation: true);
 
-            Assert.DoesNotContain(result.Diagnostics, diagnostic => diagnostic.Id == "CS8785");
+            Assert.Empty(result.Diagnostics);
             Assert.Contains(result.NewCompilation.GetDiagnostics(), diagnostic => diagnostic.Id == "CS0103");
         }
     }
