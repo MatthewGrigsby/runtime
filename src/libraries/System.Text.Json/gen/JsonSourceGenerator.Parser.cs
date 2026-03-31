@@ -1483,8 +1483,11 @@ namespace System.Text.Json.SourceGeneration
                             case JsonPropertyNameAttributeFullName:
                             {
                                 ImmutableArray<TypedConstant> ctorArgs = attributeData.ConstructorArguments;
-                                jsonPropertyName = (string)ctorArgs[0].Value!;
-                                // Null check here is done at runtime within JsonSerializer.
+                                if (ctorArgs.Length == 1)
+                                {
+                                    jsonPropertyName = (string?)ctorArgs[0].Value;
+                                    // Null check here is done at runtime within JsonSerializer.
+                                }
                                 break;
                             }
                             case JsonPropertyOrderAttributeFullName:

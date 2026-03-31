@@ -885,5 +885,33 @@ namespace System.Text.Json.SourceGeneration.UnitTests
             Assert.Empty(result.Diagnostics);
             result.AssertContainsType("global::HelloWorld.TypeWithManyParams<int, string, bool, double, long>");
         }
+
+        [Fact]
+        public void UnresolvedJsonPropertyNameDoesNotCrashGenerator()
+        {
+            string source = """
+                using System.Text.Json.Serialization;
+
+                namespace Test
+                {
+                    public class MyPoco
+                    {
+                        [JsonPropertyName(UndefinedName)]
+                        public int Value { get; set; }
+                    }
+
+                    [JsonSerializable(typeof(MyPoco))]
+                    public partial class JsonContext : JsonSerializerContext
+                    {
+                    }
+                }
+                """;
+
+            Compilation compilation = CompilationHelper.CreateCompilation(source);
+            JsonSourceGeneratorResult result = CompilationHelper.RunJsonSourceGenerator(compilation, disableDiagnosticValidation: true);
+
+            Assert.DoesNotContain(result.Diagnostics, diagnostic => diagnostic.Id == "CS8785");
+            Assert.Contains(result.NewCompilation.GetDiagnostics(), diagnostic => diagnostic.Id == "CS0103");
+        }
     }
 }
